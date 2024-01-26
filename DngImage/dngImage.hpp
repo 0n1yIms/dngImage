@@ -16,59 +16,19 @@ public:
     int width;
     int height;
 
-    inline GainMap() {};
-    inline ~GainMap() {
-        if(gm != nullptr)
-            free(gm);
-    }
+    GainMap();
+    ~GainMap();
 
-    inline GainMap(int w, int h) {
-        width = w;
-        height = h;
-        gm = (float *) malloc(w * h * 4 * sizeof(float));
-    }
-    inline GainMap(const GainMap& gainMap) {
-        width = gainMap.width;
-        height = gainMap.height;
-        if(gainMap.gm == nullptr)
-            gm = nullptr;
-        else{
-            gm = (float *) malloc(width * height * 4 * sizeof(float));
-            memcpy(gm, gainMap.gm, width * height * 4 * sizeof(float));
-        }
-    }
+    GainMap(int w, int h);
+    GainMap(const GainMap& gainMap);
 
-    inline GainMap &operator=(const GainMap &gainMap) {
-        width = gainMap.width;
-        height = gainMap.height;
-        if(gm != nullptr)
-            free(gm);
-        if(gainMap.gm == nullptr)
-            gm = nullptr;
-        else{
-            gm = (float *) malloc(width * height * 4 * sizeof(float));
-            memcpy(gm, gainMap.gm, width * height * 4 * sizeof(float));
-        }
-        return *this;
-    }
+    GainMap &operator=(const GainMap &gainMap);
 
-    inline void release()
-    {
-        if(gm != nullptr)
-            free(gm);
-    }
+    void release();
 
-    inline bool empty()
-    {
-        return gm == nullptr;
-    }
+    bool empty();
 
-    inline float &operator()(int x, int y, int c) {
-        if(empty())
-            return *new float(1.f);
-        else
-            return gm[x + y * width + (width * height * c)];
-    }
+    float &operator()(int x, int y, int c);
 
 };
 
@@ -102,7 +62,7 @@ public:
     int gmW;
     int gmH;
     uint32_t whiteLevel;
-    uint32_t *blackLevel;
+    uint32_t *blackLevel = nullptr;
 
     double aperture;                    //lens aperture
     double exposureTime;                //sensor exposition time in seconds
@@ -121,7 +81,7 @@ public:
     int illuminant1;
     int illuminant2;
 
-    uint16_t *data;
+    uint16_t *data = nullptr;
 
     DngImg();
     DngImg(const DngImg& dngImg);

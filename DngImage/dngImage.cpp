@@ -2,7 +2,7 @@
 // Created by imsac on 7/1/2022.
 //
 #include <string>
-#include "dngImage.h"
+#include "dngImage.hpp"
 #include "dng_host.h"
 #include "dng_stream.h"
 #include "dng_file_stream.h"
@@ -13,6 +13,74 @@
 #include "dng_image_writer.h"
 #include "dng_gain_map.h"
 #include "dng_memory_stream.h"
+
+
+GainMap::GainMap() {
+
+}
+GainMap::~GainMap() {
+    if(gm != nullptr)
+        free(gm);
+}
+
+GainMap::GainMap(int w, int h) {
+    width = w;
+    height = h;
+    gm = new float[w * h * 4];
+}
+GainMap::GainMap(const GainMap& gainMap) {
+    if(gainMap.gm == nullptr){
+        if(gm != nullptr)
+            delete[] gm;
+        gm = nullptr;
+    }
+    else{
+        if(gainMap.width != width || gainMap.height != height) {
+            delete[] gm;
+            gm = new float[gainMap.width * gainMap.height * 4];
+        }
+        memcpy(gm, gainMap.gm, gainMap.width * gainMap.height * 4 * sizeof(float));
+    }
+    width = gainMap.width;
+    height = gainMap.height;
+}
+
+GainMap &GainMap::operator=(const GainMap &gainMap) {
+    if(gainMap.gm == nullptr){
+        if(gm != nullptr)
+            delete[] gm;
+        gm = nullptr;
+    }
+    else{
+        if(gainMap.width != width || gainMap.height != height) {
+            delete[] gm;
+            gm = new float[gainMap.width * gainMap.height * 4];
+        }
+        memcpy(gm, gainMap.gm, gainMap.width * gainMap.height * 4 * sizeof(float));
+    }
+    width = gainMap.width;
+    height = gainMap.height;
+    return *this;
+}
+
+void GainMap::release() {
+    if(gm != nullptr)
+        free(gm);
+}
+
+bool GainMap::empty() {
+    return gm == nullptr;
+}
+
+float &GainMap::operator()(int x, int y, int c) {
+    if(empty())
+        return *new float(1.f);
+    else
+        return gm[x + y * width + (width * height * c)];
+}
+
+
+
 
 void dngWrite(DngImg& dngImg, dng_stream& stream);
 DngImg &dngRead(dng_stream& inStream);
@@ -537,14 +605,14 @@ DngImg::DngImg(const DngImg &dng){
     width = dng.width;
     height = dng.height;
     rowStride = dng.rowStride;
-    dataLength = dng.dataLength;
 
     cfa = dng.cfa;
     gm = dng.gm;
     gmW = dng.gmW;
     gmH = dng.gmH;
     whiteLevel = dng.whiteLevel;
-    blackLevel = new uint32_t[4];
+    if(blackLevel == nullptr)
+        blackLevel = new uint32_t[4];
     blackLevel[0] = dng.blackLevel[0];
     blackLevel[1] = dng.blackLevel[1];
     blackLevel[2] = dng.blackLevel[2];
@@ -558,39 +626,51 @@ DngImg::DngImg(const DngImg &dng){
     orientation = dng.orientation;
 
     if(dng.calibration1 != nullptr){
-        calibration1 = new double[9];
+        if(calibration1 == nullptr)
+            calibration1 = new double[9];
         memcpy(calibration1, dng.calibration1, 9 * sizeof(double));
     }
     if(dng.calibration2 != nullptr){
-        calibration2 = new double[9];
+        if(calibration2 == nullptr)
+            calibration2 = new double[9];
         memcpy(calibration2, dng.calibration2, 9 * sizeof(double));
     }
     if(dng.color1 != nullptr){
-        color1 = new double[9];
+        if(color1 == nullptr)
+            color1 = new double[9];
         memcpy(color1, dng.color1, 9 * sizeof(double));
     }
     if(dng.color2 != nullptr){
-        color2 = new double[9];
+        if(color2 == nullptr)
+            color2 = new double[9];
         memcpy(color2, dng.color2, 9 * sizeof(double));
     }
     if(dng.forward1 != nullptr){
-        forward1 = new double[9];
+        if(forward1 == nullptr)
+            forward1 = new double[9];
         memcpy(forward1, dng.forward1, 9 * sizeof(double));
     }
     if(dng.forward2 != nullptr){
-        forward2 = new double[9];
+        if(forward2 == nullptr)
+            forward2 = new double[9];
         memcpy(forward2, dng.forward2, 9 * sizeof(double));
     }
     if(dng.camNeutral != nullptr){
-        camNeutral = new double[3];
+        if(camNeutral == nullptr)
+            camNeutral = new double[3];
         memcpy(camNeutral, dng.camNeutral, 3 * sizeof(double));
     }
 
     illuminant1 = dng.illuminant1;
     illuminant2 = dng.illuminant2;
 
-    data = new uint16_t[dataLength];
+    if(dng.dataLength != dataLength){
+        if(data != nullptr)
+            delete[] data;
+        data = new uint16_t[dataLength];
+    }
     memcpy(data, dng.data, dataLength * sizeof(uint16_t));
+    dataLength = dng.dataLength;
 }
 
 DngImg::~DngImg(){
@@ -618,14 +698,14 @@ DngImg &DngImg::operator=(const DngImg &dng){
     width = dng.width;
     height = dng.height;
     rowStride = dng.rowStride;
-    dataLength = dng.dataLength;
 
     cfa = dng.cfa;
     gm = dng.gm;
     gmW = dng.gmW;
     gmH = dng.gmH;
     whiteLevel = dng.whiteLevel;
-    blackLevel = new uint32_t[4];
+    if(blackLevel == nullptr)
+        blackLevel = new uint32_t[4];
     blackLevel[0] = dng.blackLevel[0];
     blackLevel[1] = dng.blackLevel[1];
     blackLevel[2] = dng.blackLevel[2];
@@ -639,39 +719,51 @@ DngImg &DngImg::operator=(const DngImg &dng){
     orientation = dng.orientation;
 
     if(dng.calibration1 != nullptr){
-        calibration1 = new double[9];
+        if(calibration1 == nullptr)
+            calibration1 = new double[9];
         memcpy(calibration1, dng.calibration1, 9 * sizeof(double));
     }
     if(dng.calibration2 != nullptr){
-        calibration2 = new double[9];
+        if(calibration2 == nullptr)
+            calibration2 = new double[9];
         memcpy(calibration2, dng.calibration2, 9 * sizeof(double));
     }
     if(dng.color1 != nullptr){
-        color1 = new double[9];
+        if(color1 == nullptr)
+            color1 = new double[9];
         memcpy(color1, dng.color1, 9 * sizeof(double));
     }
     if(dng.color2 != nullptr){
-        color2 = new double[9];
+        if(color2 == nullptr)
+            color2 = new double[9];
         memcpy(color2, dng.color2, 9 * sizeof(double));
     }
     if(dng.forward1 != nullptr){
-        forward1 = new double[9];
+        if(forward1 == nullptr)
+            forward1 = new double[9];
         memcpy(forward1, dng.forward1, 9 * sizeof(double));
     }
     if(dng.forward2 != nullptr){
-        forward2 = new double[9];
+        if(forward2 == nullptr)
+            forward2 = new double[9];
         memcpy(forward2, dng.forward2, 9 * sizeof(double));
     }
     if(dng.camNeutral != nullptr){
-        camNeutral = new double[3];
+        if(camNeutral == nullptr)
+            camNeutral = new double[3];
         memcpy(camNeutral, dng.camNeutral, 3 * sizeof(double));
     }
 
     illuminant1 = dng.illuminant1;
     illuminant2 = dng.illuminant2;
 
-    data = new uint16_t[dataLength];
+    if(dng.dataLength != dataLength){
+        if(data != nullptr)
+            delete[] data;
+        data = new uint16_t[dataLength];
+    }
     memcpy(data, dng.data, dataLength * sizeof(uint16_t));
+    dataLength = dng.dataLength;
     return *this;
 }
 
