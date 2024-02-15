@@ -667,7 +667,8 @@ DngImg::DngImg(const DngImg &dng){
     if(dng.dataLength != dataLength){
         if(data != nullptr)
             delete[] data;
-        data = new uint16_t[dataLength];
+        data = new uint16_t[dng.dataLength];
+        dataLength = dng.dataLength;
     }
     memcpy(data, dng.data, dataLength * sizeof(uint16_t));
     dataLength = dng.dataLength;
@@ -760,7 +761,8 @@ DngImg &DngImg::operator=(const DngImg &dng){
     if(dng.dataLength != dataLength){
         if(data != nullptr)
             delete[] data;
-        data = new uint16_t[dataLength];
+        data = new uint16_t[dng.dataLength];
+        dataLength = dng.dataLength;
     }
     memcpy(data, dng.data, dataLength * sizeof(uint16_t));
     dataLength = dng.dataLength;
