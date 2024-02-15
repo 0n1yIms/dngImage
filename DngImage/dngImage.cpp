@@ -141,12 +141,12 @@ static int getCfa(uint8_t cfa[2][2])
         return -1;
 }
 
-DngImg dngRead(void* data, int size)
+DngImg &dngRead(void* data, int size)
 {
     dng_stream stream(data, size);
     return dngRead(stream);
 }
-DngImg dngRead(const string& in)
+DngImg &dngRead(const string& in)
 {
     dng_stream &stream = *new dng_file_stream(in.c_str(), false);
     return dngRead(stream);

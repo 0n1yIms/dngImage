@@ -92,8 +92,8 @@ public:
     void log();
 };
 
-DngImg dngRead(const string& in);
-DngImg dngRead(void* data, int size);
+DngImg &dngRead(const string& in);
+DngImg &dngRead(void* data, int size);
 void dngWrite(DngImg& dngImg, const string& out);
 void dngWrite(DngImg& dngImg, uint8_t*& data, uint64_t& len);
 
