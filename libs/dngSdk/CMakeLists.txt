@@ -22,5 +22,11 @@ target_compile_options(dngSdk PUBLIC
         -DqAndroid=0
         )
 
+#install 
+# install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include/dngSdk)
+# install(TARGETS dngSdk 
+        # ARCHIVE DESTINATION lib
+        # LIBRARY DESTINATION lib)
+
 
         
