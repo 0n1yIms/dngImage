@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.6.0)
 project(DngImage)
 
-add_library(dngImage SHARED
+if(BUILD_SHARED_LIBS)
+    set(LIBS_TYPE SHARED)
+else()
+    set(LIBS_TYPE STATIC)
+endif()
+
+add_library(dngImage ${LIBS_TYPE}
         ${CMAKE_CURRENT_SOURCE_DIR}/dngImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/dngImage.hpp
         )
